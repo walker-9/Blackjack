@@ -1,0 +1,174 @@
+# BLACKJACK
+# -KNOWN ISSUES-
+# - Aces are worth 1, not 1 or 11 depending on context
+# - program throws error when deck is empty (takes several rounds)
+# - inconsistent naming scheme, some variables are named like_this, others likethis
+# - cutting & shuffling the deck is strictly unnecessary after randomization, just done for fun
+# - player and dealer banks can go below 0
+# - player can bet any integer, including negative numbers, meaning when you lose you gain money and when you win you lose money.
+# - ^ this is pretty funny to me so I might keep it in
+# - probably others I know about but can't think of at the moment
+
+import random
+import math
+print("Welcome to BLACKJACK")
+unshuffled_deck = [["A♡", 1], ["A♣", 1], ["A♢", 1], ["A♠", 1],
+                   ["2♡", 2], ["2♣", 2], ["2♢", 2], ["2♠", 2],
+                   ["3♡", 3], ["3♣", 3], ["3♢", 3], ["3♠", 3],
+                   ["4♡", 4], ["4♣", 4], ["4♢", 4], ["4♠", 4],
+                   ["5♡", 5], ["5♣", 5], ["5♢", 5], ["5♠", 5],
+                   ["6♡", 6], ["6♣", 6], ["6♢", 6], ["6♠", 6],
+                   ["7♡", 7], ["7♣", 7], ["7♢", 7], ["7♠", 7],
+                   ["8♡", 8], ["8♣", 8], ["8♢", 8], ["8♠", 8], 
+                   ["9♡", 9], ["9♣", 9], ["9♢", 9], ["9♠", 9], 
+                   ["10♡", 10], ["10♣", 10], ["10♢", 10], ["10♠", 10], 
+                   ["J♡", 10], ["J♣", 10], ["J♢", 10], ["J♠", 10], 
+                   ["Q♡", 10], ["Q♣", 10], ["Q♢", 10], ["Q♠", 10], 
+                   ["K♡", 10], ["K♣", 10], ["K♢", 10], ["K♠", 10]]
+# Defines the card deck
+random_deck = unshuffled_deck
+random.shuffle(random_deck)
+# Randomizes card order
+cut_deck1 = random_deck[0:26]
+cut_deck2 = random_deck[26:52]
+# Cuts the cards (technically unnecessary)
+shuffled_deck = []
+tempcard = []
+while cut_deck1 != [] and cut_deck2 != []:
+  tempcard = cut_deck1.pop(0)
+  shuffled_deck.append(tempcard)
+  tempcard = cut_deck2.pop(0)
+  shuffled_deck.append(tempcard)
+# Shuffles the cards (technically unnecessary)
+end_of_round = False
+player_bank = 500
+dealer_bank = 5000
+player_bet = 0
+print("You start with 500 dollars. Place a bet between 2 and 500")
+player_bet = int(input())
+player_bank -= player_bet
+dealer_bet = player_bet
+dealer_bank -= dealer_bet
+print("Player bet: "  , player_bet)
+print("Player bank: " , player_bank)
+print("Dealer bet: " , dealer_bet)
+print("Dealer bank: " , dealer_bank)
+# Preliminary Bet
+playercard1 = shuffled_deck.pop()
+playercard1face = playercard1[0]
+playercard1value = playercard1[1]
+dealercard1 = shuffled_deck.pop()
+dealercard1face = dealercard1[0]
+dealercard1value = dealercard1[1]
+playercard2 = shuffled_deck.pop()
+playercard2face = playercard2[0]
+playercard2value = playercard2[1]
+dealercard2 = shuffled_deck.pop()
+dealercard2face = dealercard2[0]
+dealercard2value = dealercard2[1]
+playercardn = []
+dealercardn = []
+playerhandface = playercard1face + " " + playercard2face
+dealerhandface = "?  " + dealercard2face
+playerhandvalue = playercard1value + playercard2value
+dealerhandvalue = dealercard1value + dealercard2value
+# Deals out player and dealer hands
+print("Your hand:        " + playerhandface)
+print("Dealer's hand:    " + dealerhandface)
+
+while playerhandvalue <= 21:
+  print("Type hit, stand, double down, surrender, or help")
+  playerinput1 = input()
+  if playerinput1 == "hit":
+    print("You hit.")
+    playercardn = shuffled_deck.pop()
+    playerhandface = playerhandface + " " + playercardn[0]
+    playerhandvalue = playerhandvalue + playercardn[1]
+    print(playerhandface)
+    print(playerhandvalue)
+  # Hit
+  elif playerinput1 == "stand":
+    print("You stand.")
+    break
+  # Stand
+  elif playerinput1 == "surrender":
+    print("You surrender. You get half your bet back.")
+    player_split_pot = int(player_bet / 2)
+    dealer_split_pot = int(math.ceil(player_bet / 2))
+    player_bank += player_split_pot
+    dealer_bank += dealer_split_pot + dealer_bet
+    end_of_round == True
+    break
+    # Is setting to 0 necessary? delete if not
+  # Surrender
+  elif playerinput1 == "double down":
+    print("You double your bet and take another card.")
+    player_bank -= player_bet
+    player_bet * 2
+    dealer_bank -= player_bet
+    dealer_bet * 2
+    playercardn = shuffled_deck.pop()
+    playerhandface = playerhandface + " " + playercardn[0]
+    playerhandvalue = playerhandvalue + playercardn[1]
+    print("Player hand: ", playerhandface)
+    print("Player card value: ", playerhandvalue)
+  # Double Down
+  elif playerinput1 == "help":
+    print("""
+    The goal of the game is to get as close to 21 without going over.
+    Type 'hit' to take another card.
+    Type 'stand' to keep your hand.
+    Type 'double down' to double your bet and take another card.
+    Type 'surrender' to surrender the round and get half your bet back.
+    """)
+  # Help
+
+# Player hits, stands, surrenders, or doubles down
+if playerhandvalue > 21 and end_of_round == False:
+  print("You bust! Dealer wins", player_bet + dealer_bet)
+  dealer_bank += player_bet + dealer_bet
+  end_of_round = True
+  # Again, not sure if setting to 0 is necessary 
+  print("Player bank: ", player_bank)
+  print("Dealer bank: ", dealer_bank)
+# Player busts 
+elif playerhandvalue <= 21 and end_of_round == False:
+  while dealerhandvalue < 17:
+    print("Dealer hits")
+    dealercardn = shuffled_deck.pop()
+    dealerhandface = dealerhandface + " " + dealercardn[0]
+    dealerhandvalue = dealerhandvalue + dealercardn[1]
+    print(dealerhandface)
+    print("Dealer value is: " , dealerhandvalue)
+  if dealerhandvalue > 21:
+   print("Dealer busts")
+   dealerhandvalue = -1
+  elif 0 < dealerhandvalue <= 21:
+   print("Dealer stands")
+# Dealer hits or stands and ends his turn
+if end_of_round == False:
+  dealerhandface = dealerhandface.replace("?  ", dealercard1face + " ")
+  print("Player hand: ", playerhandface)
+  print("Dealer hand: ", dealerhandface)
+  if playerhandvalue > dealerhandvalue:
+    print("You win", (player_bet + dealer_bet), "!")
+    player_bank += player_bet + dealer_bet
+    end_of_round = True
+  elif playerhandvalue < dealerhandvalue:
+    print("You lose! Dealer wins", (player_bet + dealer_bet))
+    dealer_bank += player_bet + dealer_bet
+  elif playerhandvalue == dealerhandvalue:
+    print("You tie! All bets are returned")
+    player_bank += player_bet
+    dealer_bank += dealer_bet  
+# Player wins, loses or ties
+if end_of_round == True:
+  print("Player bank: ", player_bank)
+  print("Dealer bank: ", dealer_bank)
+  player_bet = 0
+  dealer_bet = 0
+# Round ends, new balance is shown
+
+
+
+
